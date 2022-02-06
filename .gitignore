@@ -3,3 +3,6 @@ Pipfile.lock
 *.log
 *.db
 __pycache__
+
+/.idea
+*.sqlite3

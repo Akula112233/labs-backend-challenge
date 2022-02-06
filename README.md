@@ -34,3 +34,46 @@ Follow the instructions on the Technical Challenge page for submission.
 
 Use any tools you think are relevant to the challenge! To install additional packages
 run `pipenv install <package_name>` within the directory. Make sure to document your additions.
+
+## Database Models Reasoning
+
+- Club Model:
+  - Fields:
+    - code (String)
+    - name (String)
+    - description (String)
+    - tags (Relationship Table)
+      - When querying a club, very likely all of its tags needed
+    - users (Relationship Table)
+      - When 
+    - each entry has a locally unique ID (Integer)
+- Tag Model:
+  - Fields:
+    - Tag Name (String)
+    - each entry has a locally unique ID (Integer)
+
+- User Model:
+  - Fields:
+    - name (String)
+    - username (String)
+    - email (String)
+      - For communication from clubs to users
+    - clubs (Relationship Table)
+      - When querying a user, very likely all of their clubs are needed
+    - each entry has a locally unique ID (Integer)
+
+- Tags Model & Clubs Model association table:
+  - Fields:
+    - Tag ID (Integer)
+    - Club ID (Integer)
+  - New row for every club's tags (allows repeated tags & clubs)
+  - Tags repeat between clubs and clubs have multiple tags
+  - Many-To-Many Relationship b/w Tags & Clubs
+
+- Users Model & Clubs Model association table:
+  - Fields:
+    - User ID (Integer)
+    - Club ID (Integer)
+  - New row for every club's users (allows repeated users & clubs)
+  - Users repeat between clubs and clubs have multiple users
+  - Many-To-Many Relationship b/w Users & Clubs
