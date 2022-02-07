@@ -77,3 +77,17 @@ run `pipenv install <package_name>` within the directory. Make sure to document 
   - New row for every club's users (allows repeated users & clubs)
   - Users repeat between clubs and clubs have multiple users
   - Many-To-Many Relationship b/w Users & Clubs
+
+## Additional Packages Installed
+requests - used for webscraping, sends HTTP request to website
+BeautifulSoup - used to parse/navigate html data
+
+## Webscraping Notes/Reasoning
+- Elements all in unique `"box"` class
+- each `"box"` contains elements with class names `club-name`, `tag`, 
+and `"em"` tag with description
+- Since only one website, synchronous is alright, otherwise maybe async since
+  it would be faster to read multiple sites at once (unless overhead of async)
+  outweighs the time it would take for sync reading
+
+## Routes & Functionality Reasoning
