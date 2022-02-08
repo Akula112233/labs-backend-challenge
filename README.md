@@ -35,6 +35,19 @@ Follow the instructions on the Technical Challenge page for submission.
 Use any tools you think are relevant to the challenge! To install additional packages
 run `pipenv install <package_name>` within the directory. Make sure to document your additions.
 
+## What did I do for this challenge (my deliverables):
+- Completed the base challenge
+  - Custom Routes: 
+    - Get all users GET request to (/api/users)
+    - Add new user POST request to (/api/users)
+- Did 2 bonus challenges:
+  - Webscraping
+  - Comments
+- Documentation:
+  - Throughout the code as comments
+  - Formatted API Docs with example inputs (PDF also in the github but link is interactive/better): https://documenter.getpostman.com/view/12119059/UVeJKjkG
+  - Reasoning for some functionality and model implementation below in this README
+
 ## Database Models Reasoning
 
 - Club Model:
@@ -47,6 +60,8 @@ run `pipenv install <package_name>` within the directory. Make sure to document 
     - users (Relationship Table)
       - When 
     - each entry has a locally unique ID (Integer)
+    - comments relationship to Comment table
+
 - Tag Model:
   - Fields:
     - Tag Name (String)
@@ -61,6 +76,15 @@ run `pipenv install <package_name>` within the directory. Make sure to document 
     - clubs (Relationship Table)
       - When querying a user, very likely all of their clubs are needed
     - each entry has a locally unique ID (Integer)
+    - comments relationship to Comment table
+
+- Comment Model:
+  - Fields:
+    - user_id(integer)
+    - club_id(integer)
+    - text(string)
+    - each entry has a locally unique ID (integer)
+  - A comment is related to exactly one club and one user, but a user and a club can both have multiple comments
 
 - Tags Model & Clubs Model association table:
   - Fields:
@@ -84,10 +108,38 @@ BeautifulSoup - used to parse/navigate html data
 
 ## Webscraping Notes/Reasoning
 - Elements all in unique `"box"` class
-- each `"box"` contains elements with class names `club-name`, `tag`, 
+- Each `"box"` contains elements with class names `club-name`, `tag`, 
 and `"em"` tag with description
 - Since only one website, synchronous is alright, otherwise maybe async since
   it would be faster to read multiple sites at once (unless overhead of async)
   outweighs the time it would take for sync reading
+- Converted all club data to format that could easily reuse add_club function
 
-## Routes & Functionality Reasoning
+## General Routes & Functionality Reasoning
+- As per my understanding of RESTful APIs & just good programming practices:
+  - Whenever a resource was added, altered, or deleted, I returned that resource in JSON format
+  - For the same URL (within clubs, comments, and users):
+    - POST requests always were used for adding new information/resource
+    - PUT requests always were used for modifying existing information/resource
+    - GET requests always were used for reading existing information/resource without alteration
+  - For comments, I also implemented DELETE:
+    - takes a comment_id (all that's necessary) and deletes it from the Comments table
+    - cutting off relationships is handled by SQLAlchemy
+  - Returned error codes of specific types based upon the error I caught
+    - Ex: if resource not found, then error 404, if success, then 200, etc.
+    - Did some error-checking (ex: if information is missing or resource not found), but not all implemented (due to time constraints)
+      - Meant to show how I might implement error-checking where applicable
+  - In all my designing, I took time to think about what the front-end would have access to, what they can easily send and receive, and how I can make the least possible number of queries without making over-complicated code
+- Some Route-Specific Reasoning:
+  - For the modify_club route:
+    - The assumption in the modify club function is that the front end will pull all data, allow the user to modify what is necessary, then send all fields back. Empty fields should be addresed in the front end, but just in case, if None is given back, this system keeps the old values.
+  - For the get_all_users route:
+    - This route I made return all data about a user, including connections to some clubs
+    - I imagined something like this route could be used for migrating user profiles between different versions of an app
+  - For the add_favorites route:
+    - Here I realized from the front end this function could simply be tied to a favorites button
+    - Instead of separate add and remove favorite functions, I made this function simply toggle between having the club marked as a favorite and removing it if it already exists
+    - This is just something I feel I would like if I were making the front end of this app
+  - General data stuff I did:
+    - If a sufficient amount of data wasn't provided, I returned the proper error codes, but wherever possible, I tried to see how old data could be reused to sensibly fill gaps
+    - I made sure a resource existed (for the most part) before attempting to act on it

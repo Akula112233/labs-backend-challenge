@@ -2,6 +2,10 @@ import random
 import requests
 from bs4 import BeautifulSoup
 
+'''
+This function takes in a URL and deconstructs the HTML page it points to using BeautifulSoup
+Uses helper functions convert_to_json and club_code_maker to format clubs from site into JSON
+'''
 def scrape_clubs(URL="https://ocwp.pennlabs.org/"):
     page = requests.get(url=URL)
     soup = BeautifulSoup(page.content, "html.parser")
@@ -11,6 +15,10 @@ def scrape_clubs(URL="https://ocwp.pennlabs.org/"):
     all_clubs = list(map(convert_to_json, boxes))
     return all_clubs
 
+'''
+This function takes a particular "box" and takes the required text elements of club name, tags, and description
+The, using helper function club_code_maker() generates a code based off of the club name and pseudo-random integers
+'''
 def convert_to_json(box):
     club_name = box.find("strong", class_="club-name").text.strip()
     club_tags = [i.text.strip() for i in box.find_all("span", class_="tag")]
@@ -22,6 +30,10 @@ def convert_to_json(box):
         "tags": club_tags,
     }
 
+'''
+Using the club name, takes the first letter of each word then lower-cases the combined string
+Combines this string with random integers to ensure no overlap in codes for the clubs being added
+'''
 def club_code_maker(name):
     result = ""
     take_next = True
