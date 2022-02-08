@@ -5,10 +5,13 @@ import json
 
 
 
-def create_user():
-    josh = User(name='Josh', username='josh', email='josh@upenn.edu', gender=Genders.MALE.value, year=Years.FRESHMAN.value)
-    db.session.add(josh)
-    db.session.commit()
+def create_user(name='Josh', username='josh', email='josh@upenn.edu', gender=0, year="freshman"):
+    new_user = User.query.filter_by(username=username).first()
+    if(new_user is None):
+        new_user = User(name=name, username=username, email=email, gender=gender, year=year)
+        db.session.add(new_user)
+        db.session.commit()
+    return new_user
 
 '''
 Loading data from json file as a json obj, then unpacking with python standard functionality
@@ -18,12 +21,12 @@ def load_data():
     f = open("clubs.json")
     data = json.load(f)
     for i in data:
-        add_club(code=i["code"], name=i["name"], description=i["description"], tag_names=i["tags"])
+        add_club(code=i.get("code"), name=i.get("name"), description=i.get("description"), tag_names=i.get("tags"))
 
 '''
 General functions for getting tag ids and adding clubs
 Runs with helper function get_tag_from_name
-Basic Process: If club code exists, then pass, otherwise, add club, check uniqueness of tags,
+Basic Process: If club code exists, then pass and return club, otherwise, add club, check uniqueness of tags,
     then add clubs-tags relationship
 '''
 def add_club(code, name, description, tag_names):
@@ -33,9 +36,7 @@ def add_club(code, name, description, tag_names):
         club = Club(code=code, name=name, description=description, tags=tags)
         db.session.add(club)
         db.session.commit()
-        return club
-    else:
-        return club
+    return club
 '''
 Given a tag name, if the tag exists in the tags table, return it, otherwise add it then return it
 '''
@@ -62,16 +63,21 @@ def get_user_by_username(username):
     return user.as_public_json
 
 def get_all_users():
-    return [i.as_json for i in User.query.all()]
+    users =  User.query.all()
+    return [i.as_json for i in users]
 
 def add_favorite(username, club_code):
     user = User.query.filter_by(username=username).first()
     if user is not None:
         club = Club.query.filter_by(code=club_code).first()
         new_list = user.favorite_clubs.copy()
-        new_list.append(club)
+        if(club in new_list):
+            new_list.remove(club)
+        else:
+            new_list.append(club)
         setattr(user, "favorite_clubs", new_list)
         db.session.add(user)
+        db.session.flush()
         db.session.commit()
         return user
     else:
@@ -96,6 +102,27 @@ def modify_club(club, name=None, description=None, tag_names=None):
     db.session.flush()
     db.session.commit()
     return club
+
+def add_comment(club_id, user_id, comment_text):
+    comment = Comment(club_id=club_id, user_id=user_id, text=comment_text)
+    db.session.add(comment)
+    db.session.flush()
+    db.session.commit()
+    return comment
+
+def modify_comment(comment_id, comment_text):
+    comment = Comment.query.filter_by(id=comment_id).first()
+    setattr(comment, "text", comment_text if (comment_text is not None) else comment.text)
+    db.session.add(comment)
+    db.session.flush()
+    db.session.commit()
+    return comment
+
+def delete_comment(comment_id):
+    comment = Comment.query.filter_by(id=comment_id).first()
+    db.session.delete(comment)
+    db.session.commit()
+    return comment
 
 def get_all_tags():
     all_tags = Tag.query.all()
