@@ -103,8 +103,8 @@ run `pipenv install <package_name>` within the directory. Make sure to document 
   - Many-To-Many Relationship b/w Users & Clubs
 
 ## Additional Packages Installed
-requests - used for webscraping, sends HTTP request to website
-BeautifulSoup - used to parse/navigate html data
+- requests - used for webscraping, sends HTTP request to website
+- BeautifulSoup - used to parse/navigate html data
 
 ## Webscraping Notes/Reasoning
 - Elements all in unique `"box"` class
